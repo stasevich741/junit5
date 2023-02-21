@@ -4,6 +4,7 @@ import com.example.junit5.dto.User;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // (аналог Spring Singleton scope) можем убрать статик у @BeforeAll и @AfterAll
 class UserServiceTest {
 
+    private static final User PETR = User.of(2, "petr", "111");
+    private static final User IVAN = User.of(1, "ivan", "123");
     private UserService userService;
 
     @BeforeAll
@@ -43,8 +46,8 @@ class UserServiceTest {
     @Test
     void usersSizeIfUserAdded() {
         System.out.println("test2 " + this);
-        userService.add(new User());
-        userService.add(new User());
+        userService.add(IVAN);
+        userService.add(PETR);
 
         List<User> users = userService.getAll();
         assertEquals(2, users.size());
@@ -53,6 +56,16 @@ class UserServiceTest {
     @AfterEach
     void deleteDataFromDatabase() {
         System.out.println("a@AfterEach " + this);
+    }
+
+    @Test
+    @DisplayName("login success if user exist")
+    void loginSuccessIfUserExist() {
+        userService.add(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getUsername(), IVAN.getPassword());
+
+        assertTrue(maybeUser.isPresent());
+        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
     }
 
     @AfterAll
