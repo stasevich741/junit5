@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 //@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 // по умолчанию (аналог Spring prototype scope)
@@ -53,38 +53,6 @@ class UserServiceTest {
         assertThat(users).hasSize(2);
     }
 
-    @Test
-    @DisplayName("login success if user exist")
-    void loginSuccessIfUserExist() {
-        userService.add(IVAN);
-        Optional<User> maybeUser = userService.login(IVAN.getUsername(), IVAN.getPassword());
-
-//        assertTrue(maybeUser.isPresent());
-//        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
-        assertThat(maybeUser).isPresent();
-        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
-    }
-
-    @Test
-    @DisplayName("login failed if password not correct")
-    void loginFailedIfPasswordNotCorrect() {
-        userService.add(IVAN);
-        Optional<User> maybeUser = userService.login(IVAN.getUsername(), "EBfFe8ED97GxdHEAJUH83m");
-
-//        assertTrue(maybeUser.isEmpty());
-        assertThat(maybeUser).isEmpty();
-    }
-
-
-    @Test
-    @DisplayName("login fail if user does not exist")
-    void loginFailIfUserDoesNotExist() {
-        Optional<User> maybeUser = userService.login("Dawon", IVAN.getPassword());
-
-//        assertTrue(maybeUser.isEmpty());
-        assertThat(maybeUser).isEmpty();
-    }
-
     @AfterEach
     void deleteDataFromDatabase() {
         System.out.println("a@AfterEach " + this);
@@ -93,5 +61,52 @@ class UserServiceTest {
     @AfterAll
     void closeResources() {
         System.out.println("@AfterAll");
+    }
+
+    @Nested
+    @Tag("login")
+    class LoginTest {
+        @Test
+        @DisplayName("login fail if user does not exist")
+        void loginFailIfUserDoesNotExist() {
+            Optional<User> maybeUser = userService.login("Dawon", IVAN.getPassword());
+
+//        assertTrue(maybeUser.isEmpty());
+            assertThat(maybeUser).isEmpty();
+        }
+
+        @Test
+        @DisplayName("login failed if password not correct")
+        void loginFailedIfPasswordNotCorrect() {
+            userService.add(IVAN);
+            Optional<User> maybeUser = userService.login(IVAN.getUsername(), "EBfFe8ED97GxdHEAJUH83m");
+
+//        assertTrue(maybeUser.isEmpty());
+            assertThat(maybeUser).isEmpty();
+        }
+
+        @Test
+        @DisplayName("login success if user exist")
+        void loginSuccessIfUserExist() {
+            userService.add(IVAN);
+            Optional<User> maybeUser = userService.login(IVAN.getUsername(), IVAN.getPassword());
+
+//        assertTrue(maybeUser.isPresent());
+//        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+            assertThat(maybeUser).isPresent();
+            maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+        }
+
+        @Test
+        @DisplayName("throw exception if username or password is null")
+        void throwExceptionIfUsernameOrPasswordIsNull() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> userService.login(null, "dummy")),
+                    () -> {
+                        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null));
+                        assertThat(exception.getMessage()).isEqualTo("username or password is null");
+                    }
+            );
+        }
     }
 }
