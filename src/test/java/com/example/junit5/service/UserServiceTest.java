@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //@TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -46,16 +46,11 @@ class UserServiceTest {
     @Test
     void usersSizeIfUserAdded() {
         System.out.println("test2 " + this);
-        userService.add(IVAN);
-        userService.add(PETR);
+        userService.add(IVAN, PETR);
 
         List<User> users = userService.getAll();
-        assertEquals(2, users.size());
-    }
-
-    @AfterEach
-    void deleteDataFromDatabase() {
-        System.out.println("a@AfterEach " + this);
+//        assertEquals(2, users.size());
+        assertThat(users).hasSize(2);
     }
 
     @Test
@@ -64,8 +59,35 @@ class UserServiceTest {
         userService.add(IVAN);
         Optional<User> maybeUser = userService.login(IVAN.getUsername(), IVAN.getPassword());
 
-        assertTrue(maybeUser.isPresent());
-        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+//        assertTrue(maybeUser.isPresent());
+//        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+        assertThat(maybeUser).isPresent();
+        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+    }
+
+    @Test
+    @DisplayName("login failed if password not correct")
+    void loginFailedIfPasswordNotCorrect() {
+        userService.add(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getUsername(), "EBfFe8ED97GxdHEAJUH83m");
+
+//        assertTrue(maybeUser.isEmpty());
+        assertThat(maybeUser).isEmpty();
+    }
+
+
+    @Test
+    @DisplayName("login fail if user does not exist")
+    void loginFailIfUserDoesNotExist() {
+        Optional<User> maybeUser = userService.login("Dawon", IVAN.getPassword());
+
+//        assertTrue(maybeUser.isEmpty());
+        assertThat(maybeUser).isEmpty();
+    }
+
+    @AfterEach
+    void deleteDataFromDatabase() {
+        System.out.println("a@AfterEach " + this);
     }
 
     @AfterAll
