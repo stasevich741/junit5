@@ -2,6 +2,10 @@ package com.example.junit5.service;
 
 import com.example.junit5.dto.User;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Optional;
@@ -107,6 +111,20 @@ class UserServiceTest {
                         assertThat(exception.getMessage()).isEqualTo("username or password is null");
                     }
             );
+        }
+
+        @ParameterizedTest
+//        @ArgumentsSource()
+        @NullSource
+        @EmptySource
+//        @NullAndEmptySource
+        @ValueSource(strings =
+                {"one", "two", "etc"}
+        )
+        @DisplayName("login parameterised test")
+        void loginParameterisedTest(String username) {
+            userService.add(IVAN, PETR);
+            Optional<User> maybeUser = userService.login(username, "123");
         }
     }
 }

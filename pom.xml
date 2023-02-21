@@ -26,6 +26,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
             <version>${allure.version}</version>
@@ -68,6 +75,11 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.30</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mikemybytes</groupId>
+            <artifactId>junit5-formatted-source-tests</artifactId>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
     <build>
